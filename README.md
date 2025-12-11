@@ -245,6 +245,16 @@ This project demonstrates the full potential of ElevenLabs Conversational Agents
 
 ---
 
+### 🔬 Prior Work (Before Hackathon)
+
+The following work was done **before** the hackathon started:
+
+- 💡 Brainstorming sessions and idea validation
+- 🧪 Simple n8n workflow blocks for learning the platform
+- 📐 Technological architecture outline
+
+---
+
 ## 📄 License
 
 MIT License — feel free to use, modify, and distribute.
