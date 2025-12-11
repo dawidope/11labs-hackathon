@@ -2,7 +2,7 @@
 'use client';
 
 import { useConversation } from '@elevenlabs/react';
-import { BookOpen, Phone, PhoneOff, Play, Sparkles } from 'lucide-react';
+import { BookOpen, Play, Sparkles, Wand2, Square } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import StoryPlayback from './StoryPlayback';
 
@@ -178,13 +178,16 @@ export default function Storylandia() {
   const handleStart = async () => {
     try {
       setError(null);
+      // Upewnij się, że mikrofon i głośność są odmutowane na start
+      setMicMuted(false);
+      setAgentVolume(1);
       await navigator.mediaDevices.getUserMedia({ audio: true });
       await conversation.startSession({
         agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID!,
       });
     } catch (err) {
-      console.error('Nie można rozpocząć:', err);
-      setError('Nie można uzyskać dostępu do mikrofonu');
+      console.error('Cannot start:', err);
+      setError('Cannot access microphone');
     }
   };
 
@@ -194,6 +197,9 @@ export default function Storylandia() {
     setAppState('idle');
     setError(null);
     setIsGenerating(false);
+    // Reset mikrofonu i głośności
+    setMicMuted(false);
+    setAgentVolume(1);
   };
 
   // Start odtwarzania bajki - WYCISZ AGENTA I MIKROFON
@@ -229,6 +235,9 @@ export default function Storylandia() {
   const handleNewStory = useCallback(() => {
     setCurrentStory(null);
     setAppState('talking');
+    // Odmutuj agenta po zamknięciu odtwarzacza
+    setMicMuted(false);
+    setAgentVolume(1);
   }, []);
 
   // Odtwórz bajkę z historii
@@ -248,7 +257,27 @@ export default function Storylandia() {
   const isConnected = conversation.status === 'connected';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
+    <div className="min-h-screen animated-bg relative overflow-hidden">
+      {/* Animated orbs */}
+      <div className="orb orb-1" />
+      <div className="orb orb-2" />
+      <div className="orb orb-3" />
+
+      {/* Floating particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 15}s`,
+              animationDuration: `${15 + Math.random() * 10}s`,
+            }}
+          />
+        ))}
+      </div>
+
       {/* Story Playback Overlay */}
       {(appState === 'playing' || appState === 'ready') && currentStory && (
         <StoryPlayback
@@ -260,68 +289,74 @@ export default function Storylandia() {
         />
       )}
 
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 max-w-2xl relative z-10">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <img
-              src="/logo.png"
-              alt="Storylandia"
-              className="h-24 md:h-32 w-auto animate-float drop-shadow-lg"
-            />
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center mb-6">
+            <div className="relative">
+              <img
+                src="/logo.png"
+                alt="Storylandia"
+                className="h-28 md:h-36 w-auto animate-float drop-shadow-2xl"
+              />
+              <div className="absolute inset-0 bg-purple-500/20 blur-3xl rounded-full -z-10" />
+            </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
-            Storylandia
-          </h1>
-          <p className="text-white/80 text-lg">
-            Magiczne bajki tworzone specjalnie dla Ciebie ✨
+          <p className="text-white/60 text-lg font-light">
+            Magical stories created just for you ✨
           </p>
         </div>
 
         {/* Main Card */}
-        <div className="glass rounded-3xl p-6 md:p-8">
+        <div className="glass-strong rounded-3xl p-8 md:p-10 glow-purple">
           {/* Status */}
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
-            <span className="text-white/80">
-              {isConnected ? 'Połączono z narratorem' : 'Gotowy do rozmowy'}
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="relative">
+              <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-white/30'}`} />
+              {isConnected && (
+                <div className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+              )}
+            </div>
+            <span className={`text-sm font-medium ${isConnected ? 'text-emerald-300' : 'text-white/50'}`}>
+              {isConnected ? 'Connected to narrator' : 'Ready to talk'}
             </span>
           </div>
 
           {/* Generating indicator */}
           {isGenerating && (
-            <div className="mb-6 p-4 bg-white/10 rounded-2xl">
+            <div className="mb-8 p-5 glass rounded-2xl shimmer">
               <div className="flex items-center justify-center gap-3">
-                <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
-                <span className="text-white">Tworzę Twoją bajkę...</span>
+                <Sparkles className="w-6 h-6 text-amber-300 animate-pulse" />
+                <span className="text-white/90 font-medium">Creating your story...</span>
               </div>
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-2xl">
-              <p className="text-red-200 text-center">{error}</p>
+            <div className="mb-8 p-5 bg-red-500/10 border border-red-500/30 rounded-2xl backdrop-blur">
+              <p className="text-red-300 text-center font-medium">{error}</p>
             </div>
           )}
 
           {/* Story ready */}
           {currentStory && appState === 'ready' && (
-            <div className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-2xl">
+            <div className="mb-8 p-5 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl backdrop-blur">
               <div className="flex items-center justify-center gap-3">
-                <BookOpen className="w-6 h-6 text-green-300" />
-                <span className="text-green-200">Bajka "{currentStory.title}" jest gotowa!</span>
+                <BookOpen className="w-6 h-6 text-emerald-300" />
+                <span className="text-emerald-200 font-medium">Story "{currentStory.title}" is ready!</span>
               </div>
             </div>
           )}
 
           {/* Audio Visualizer (when talking) */}
           {isConnected && conversation.isSpeaking && (
-            <div className="flex items-end justify-center gap-1 h-16 mb-6">
-              {[...Array(5)].map((_, i) => (
+            <div className="flex items-end justify-center gap-1.5 h-20 mb-8">
+              {[...Array(7)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-3 bg-gradient-to-t from-pink-500 to-yellow-300 rounded-full audio-bar"
+                  className="w-2 bg-gradient-to-t from-violet-500 via-fuchsia-400 to-amber-300 rounded-full audio-bar"
+                  style={{ animationDelay: `${i * 80}ms` }}
                 />
               ))}
             </div>
@@ -332,53 +367,53 @@ export default function Storylandia() {
             {!isConnected ? (
               <button
                 onClick={handleStart}
-                className="btn-magic flex items-center gap-3 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all"
+                className="group relative btn-magic flex items-center gap-3 bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-400 hover:to-fuchsia-400 text-white font-semibold py-5 px-12 rounded-2xl text-xl shadow-2xl shadow-violet-500/30 transform hover:scale-[1.03] transition-all duration-300"
               >
-                <Phone className="w-6 h-6" />
-                Zadzwoń do Narratora
+                <Wand2 className="w-7 h-7 group-hover:rotate-12 transition-transform" />
+                <span>Start Adventure</span>
               </button>
             ) : (
               <button
                 onClick={handleEnd}
-                className="btn-magic flex items-center gap-3 bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transform hover:scale-105 transition-all"
+                className="group relative btn-magic flex items-center gap-3 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-500 hover:to-slate-600 text-white font-semibold py-4 px-8 rounded-2xl text-lg shadow-2xl shadow-slate-500/20 transform hover:scale-[1.02] transition-all duration-300"
               >
-                <PhoneOff className="w-6 h-6" />
-                Zakończ rozmowę
+                <Square className="w-5 h-5 fill-current" />
+                <span>End Adventure</span>
               </button>
             )}
           </div>
 
           {/* Story History */}
           {storyHistory.length > 0 && (
-            <div className="mt-8 pt-6 border-t border-white/20">
-              <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
+            <div className="mt-10 pt-8 border-t border-white/10">
+              <h3 className="text-white/70 text-sm font-medium mb-4 flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
-                Twoje bajki ({storyHistory.length})
+                Your stories ({storyHistory.length})
                 {isConnected && (
-                  <span className="text-white/50 text-xs ml-2">(zakończ rozmowę, aby odtworzyć)</span>
+                  <span className="text-white/40 text-xs ml-2">(end adventure to play)</span>
                 )}
               </h3>
-              <div className="flex gap-2 overflow-x-auto pb-2">
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2">
                 {storyHistory.map((story, i) => (
                   <button
                     key={`${story.title}-${i}`}
                     onClick={() => !isConnected && playFromHistory(story)}
                     disabled={isConnected}
-                    className={`group flex-shrink-0 w-24 h-32 rounded-lg bg-white/10 overflow-hidden transition relative ${isConnected
-                        ? 'opacity-50 cursor-not-allowed grayscale'
-                        : 'cursor-pointer hover:ring-2 ring-yellow-400'
+                    className={`story-card group flex-shrink-0 w-28 h-36 rounded-xl glass overflow-hidden relative ${isConnected
+                      ? 'opacity-40 cursor-not-allowed grayscale'
+                      : 'cursor-pointer hover:ring-2 ring-purple-400/50'
                       }`}
                   >
                     {story.image ? (
                       <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl">📖</div>
+                      <div className="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">📖</div>
                     )}
                     {/* Play overlay on hover - only when not connected */}
                     {!isConnected && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
-                        <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
-                          <Play className="w-5 h-5 text-purple-600 ml-0.5" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/50 backdrop-blur-sm">
+                        <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-xl transform group-hover:scale-110 transition-transform">
+                          <Play className="w-6 h-6 text-purple-600 ml-0.5" />
                         </div>
                       </div>
                     )}
@@ -390,9 +425,13 @@ export default function Storylandia() {
         </div>
 
         {/* Instructions */}
-        <div className="mt-8 text-center text-white/60 text-sm">
-          <p>Kliknij przycisk i opowiedz narratorowi o swojej wymarzonej bajce!</p>
-          <p className="mt-1">Możesz wybrać bohatera, miejsce akcji i rodzaj przygody 🎭</p>
+        <div className="mt-10 text-center">
+          <p className="text-white/40 text-sm">
+            Click the button and tell the narrator about your dream story
+          </p>
+          <p className="mt-2 text-white/30 text-xs">
+            Choose your hero, location and type of adventure 🎭
+          </p>
         </div>
       </div>
     </div>

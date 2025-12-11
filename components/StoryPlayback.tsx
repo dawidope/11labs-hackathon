@@ -278,7 +278,7 @@ export default function StoryPlayback({
           <button
             onClick={() => seek(-10)}
             className="p-3 bg-white/10 hover:bg-white/20 rounded-full transition"
-            title="Cofnij 10s"
+            title="Rewind 10s"
           >
             <RotateCcw className="w-5 h-5 text-white" />
           </button>
@@ -297,7 +297,7 @@ export default function StoryPlayback({
           <button
             onClick={() => seek(10)}
             className="p-3 bg-white/10 hover:bg-white/20 rounded-full transition"
-            title="Przewiń 10s"
+            title="Forward 10s"
           >
             <RotateCcw className="w-5 h-5 text-white scale-x-[-1]" />
           </button>
@@ -307,7 +307,7 @@ export default function StoryPlayback({
         <div className="mt-3 text-center">
           <div className="flex items-center justify-center gap-2 text-white/60 text-sm">
             <Volume2 className="w-4 h-4" />
-            <span>Słów: {story.metadata.word_count}</span>
+            <span>Words: {story.metadata.word_count}</span>
             {story.metadata.has_video && (
               <>
                 <span>•</span>
@@ -321,7 +321,7 @@ export default function StoryPlayback({
         {/* Story Text Preview (collapsible) */}
         <details className="mt-3">
           <summary className="text-white/60 text-sm cursor-pointer hover:text-white/80 transition text-center">
-            📜 Pokaż tekst bajki
+            📜 Show story text
           </summary>
           <div className="mt-2 p-3 bg-white/10 rounded-xl max-h-32 overflow-y-auto">
             <p className="text-white/80 text-sm whitespace-pre-wrap leading-relaxed">
