@@ -41,6 +41,14 @@ export default function StoryPlayback({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioInitialized = useRef(false);
   const onEndRef = useRef(onEnd);
+  
+  // Refs dla synchronizacji video (żeby closure w event listenerach miały aktualne wartości)
+  const showVideoRef = useRef(showVideo);
+  const isPausedRef = useRef(isPaused);
+  
+  // Aktualizuj refy
+  showVideoRef.current = showVideo;
+  isPausedRef.current = isPaused;
 
   // Aktualizuj ref gdy callback się zmieni
   onEndRef.current = onEnd;
@@ -72,6 +80,16 @@ export default function StoryPlayback({
 
     audio.addEventListener('timeupdate', () => {
       setCurrentTime(audio.currentTime);
+      
+      // Synchronizuj video z audio podczas odtwarzania
+      if (videoRef.current && showVideoRef.current && !isPausedRef.current) {
+        const drift = Math.abs(videoRef.current.currentTime - audio.currentTime);
+        // Synchronizuj tylko jeśli drift > 0.3s
+        if (drift > 0.3) {
+          console.log('🔄 Synchronizuję video z audio, drift:', drift.toFixed(2));
+          videoRef.current.currentTime = audio.currentTime;
+        }
+      }
     });
 
     audio.addEventListener('ended', () => {
@@ -91,12 +109,20 @@ export default function StoryPlayback({
     };
   }, [story.audio]); // Tylko story.audio - NIE isPlaying ani onEnd!
 
-  // Synchronizuj video z audio (jeśli oba odtwarzane)
+  // Zarządzaj video gdy przełączamy widok lub zmieniamy stan odtwarzania
   useEffect(() => {
-    if (showVideo && videoRef.current && audioRef.current) {
+    if (!videoRef.current || !hasVideo) return;
+
+    if (showVideo && !isPaused && audioRef.current) {
+      // Synchronizuj czas i startuj video
       videoRef.current.currentTime = audioRef.current.currentTime;
+      videoRef.current.play().catch(err => {
+        console.log('⚠️ Video autoplay blocked:', err);
+      });
+    } else {
+      videoRef.current.pause();
     }
-  }, [showVideo]);
+  }, [showVideo, isPaused, hasVideo, isVideoLoaded]);
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
@@ -207,8 +233,20 @@ export default function StoryPlayback({
                 loop
                 muted
                 playsInline
-                onLoadedData={() => setIsVideoLoaded(true)}
-                autoPlay={isPlaying && !isPaused}
+                preload="auto"
+                onLoadedData={() => {
+                  console.log('📹 Video załadowane');
+                  setIsVideoLoaded(true);
+                  // Startuj video jeśli audio gra
+                  if (audioRef.current && !audioRef.current.paused && videoRef.current) {
+                    videoRef.current.currentTime = audioRef.current.currentTime;
+                    videoRef.current.play().catch(console.error);
+                  }
+                }}
+                onError={(e) => {
+                  console.error('❌ Video error:', e);
+                  setShowVideo(false); // Wróć do obrazka przy błędzie
+                }}
               />
             </>
           )}
