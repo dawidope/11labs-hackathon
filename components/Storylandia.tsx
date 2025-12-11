@@ -264,9 +264,9 @@ export default function Storylandia() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
-            <img 
-              src="/logo.png" 
-              alt="Storylandia" 
+            <img
+              src="/logo.png"
+              alt="Storylandia"
               className="h-24 md:h-32 w-auto animate-float drop-shadow-lg"
             />
           </div>
@@ -364,11 +364,10 @@ export default function Storylandia() {
                     key={`${story.title}-${i}`}
                     onClick={() => !isConnected && playFromHistory(story)}
                     disabled={isConnected}
-                    className={`group flex-shrink-0 w-24 h-32 rounded-lg bg-white/10 overflow-hidden transition relative ${
-                      isConnected 
-                        ? 'opacity-50 cursor-not-allowed grayscale' 
+                    className={`group flex-shrink-0 w-24 h-32 rounded-lg bg-white/10 overflow-hidden transition relative ${isConnected
+                        ? 'opacity-50 cursor-not-allowed grayscale'
                         : 'cursor-pointer hover:ring-2 ring-yellow-400'
-                    }`}
+                      }`}
                   >
                     {story.image ? (
                       <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
