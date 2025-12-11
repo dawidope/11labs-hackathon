@@ -2,7 +2,7 @@
 'use client';
 
 import { useConversation } from '@elevenlabs/react';
-import { BookOpen, Play, Sparkles, Wand2, Square } from 'lucide-react';
+import { BookOpen, Play, Sparkles, Square, Wand2 } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 import StoryPlayback from './StoryPlayback';
 
@@ -303,7 +303,7 @@ export default function Storylandia() {
             </div>
           </div>
           <p className="text-white/60 text-lg font-light">
-            Magical stories created just for you ✨
+            ✨ Magical stories created just for you ✨
           </p>
         </div>
 
