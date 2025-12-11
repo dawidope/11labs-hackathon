@@ -1,0 +1,858 @@
+{
+  "name": "Storylandia Hack",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst useDeAPI = input.original_data.use_deapi_image || false;\n\nreturn {\n  ...input,\n  use_deapi: useDeAPI\n};"
+      },
+      "id": "393aa6d9-8fda-413b-9792-ec5c6a24b7d7",
+      "name": "Check Image Provider",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -832,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b1c057d5-ef3f-4a4c-b105-8d7f0730a683"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1264891-b2b9-43a7-a94f-4e681d57aa43",
+      "name": "Use DeAPI?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -544,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.deapi.ai/api/v1/client/txt2img",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"prompt\": \"Children's book illustration, 3D Pixar style: {{ $json.txt2img_prompt }}. High quality, colorful, child-friendly, professional storybook art.\",\n  \"negative_prompt\": \"blur, darkness, noise, low quality, scary, frightening\",\n  \"model\": \"ZImageTurbo_INT8\",\n  \"loras\": [],\n  \"width\": 768,\n  \"height\": 768,\n  \"guidance\": 3.5,\n  \"steps\": 8,\n  \"seed\": 42\n}",
+        "options": {}
+      },
+      "id": "434a1bd3-1946-412a-9cb4-743d4b55f2d8",
+      "name": "DeAPI - Start Image Generation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -368,
+        480
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "67YxpebIm3MqaHor",
+          "name": "DEAPIBEAR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst requestId = response.data.request_id;\n\nreturn {\n  request_id: requestId,\n  original_data: $('Extract Story Data').first().json\n};"
+      },
+      "id": "d7df7950-a980-4862-98aa-3501100b6938",
+      "name": "Extract Image Request ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.deapi.ai/api/v1/client/request-status/{{ $node[\"Extract Image Request ID\"].json.request_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "id": "6020327c-09a9-43f7-9afb-5cc5aa20a012",
+      "name": "DeAPI - Check Image Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        32,
+        352
+      ],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "67YxpebIm3MqaHor",
+          "name": "DEAPIBEAR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "done",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "id": "img-ready-001"
+            },
+            {
+              "leftValue": "={{ $json.data.result_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "id": "img-ready-002"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "08732a77-afed-4010-8371-f6a28f4ae95b",
+      "name": "Image Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        240,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "ed40d44e-d440-4390-89b1-a0e4c8f0bb7f",
+      "name": "Wait Before Image Retry",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        560
+      ],
+      "webhookId": "image-wait"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.result_url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "4cc6fdde-9043-452c-9c1f-c6c7b7f655b2",
+      "name": "Download DeAPI Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        496,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const deapiImage = $input.first();\n\nif (deapiImage.binary && deapiImage.binary.data) {\n  const base64Data = deapiImage.binary.data.data;\n  \n  return {\n    json: {\n      data: [{\n        b64_json: base64Data\n      }]\n    }\n  };\n}\n\nthrow new Error('No image data found');"
+      },
+      "id": "83314224-3290-4dc5-9c0b-2596bff19437",
+      "name": "Format DeAPI Image Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const imageData = $input.first().json;\nconst base64Data = imageData.data[0].b64_json;\n\nconst buffer = Buffer.from(base64Data, 'base64');\n\nreturn {\n  json: {\n    ...imageData\n  },\n  binary: {\n    image: {\n      data: buffer.toString('base64'),\n      mimeType: 'image/png',\n      fileName: 'story_image.png',\n      fileExtension: 'png'\n    }\n  }\n};"
+      },
+      "id": "0de32128-9d55-463c-af17-384b7b59a4ee",
+      "name": "Convert Image to Binary1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -64,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.deapi.ai/api/v1/client/img2video",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $('Extract Story Data').first().json.img2vid_prompt }}"
+            },
+            {
+              "name": "negative_prompt",
+              "value": "blur, darkness, noise, low quality"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "first_frame_image",
+              "inputDataFieldName": "image"
+            },
+            {
+              "name": "width",
+              "value": "512"
+            },
+            {
+              "name": "height",
+              "value": "512"
+            },
+            {
+              "name": "guidance",
+              "value": "7.5"
+            },
+            {
+              "name": "steps",
+              "value": "1"
+            },
+            {
+              "name": "frames",
+              "value": "40"
+            },
+            {
+              "name": "fps",
+              "value": "30"
+            },
+            {
+              "name": "seed",
+              "value": "42"
+            },
+            {
+              "name": "model",
+              "value": "Ltxv_13B_0_9_8_Distilled_FP8"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a585c692-b715-4e7f-b36e-597d0951b1d0",
+      "name": "DeAPI - Start Video Generation1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        -32
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "j7VWAFwnsRVGZ8qq",
+          "name": "Deapi"
+        },
+        "httpBearerAuth": {
+          "id": "67YxpebIm3MqaHor",
+          "name": "DEAPIBEAR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst requestId = response.data.request_id;\n\nreturn {\n  request_id: requestId\n};"
+      },
+      "id": "c9b89841-4e2b-4bb9-bd1f-4043ae50901b",
+      "name": "Extract Request ID1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.deapi.ai/api/v1/client/request-status/{{ $node[\"Extract Request ID1\"].json.request_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "id": "305a2446-501c-4562-9609-676888ac358d",
+      "name": "DeAPI - Check Status1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        816,
+        -48
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "j7VWAFwnsRVGZ8qq",
+          "name": "Deapi"
+        },
+        "httpBearerAuth": {
+          "id": "67YxpebIm3MqaHor",
+          "name": "DEAPIBEAR"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "done",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "id": "9f1ba5c1-5805-40a7-a5df-bff96491934e"
+            },
+            {
+              "leftValue": "={{ $json.data.result_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "id": "381dcf78-4dd6-405f-b409-5602e6bc2082"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b25e6932-ce05-409c-bfcf-8dc833b45b29",
+      "name": "Video Ready?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "494e5151-832c-4ce9-9f81-31b0be9809fa",
+      "name": "Wait Before Retry1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        48
+      ],
+      "webhookId": "video-wait"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-story",
+        "responseMode": "lastNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "id": "08a730ef-3c95-47d3-af37-606c21af3ce6",
+      "name": "Webhook - Story Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1504,
+        496
+      ],
+      "webhookId": "story-generator-v2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nconst heroName = input.body.hero_name || 'Bohater';\nconst theme = input.body.theme || 'przygoda';\nconst direction = input.body.direction || 'radosna';\nconst additionalHeroes = input.body.additional_heroes||  [];\nconst location = input.body.location || 'magiczny las';\nconst childAge = input.body.age || 6;\nconst useDeapiImage = input.use_deapi_image || false;\n\nconst englishTheme =  theme;\n\nconst systemPrompt = `Jesteś ekspertem od pisania bajek dla dzieci.\\n\\nTwoim zadaniem jest stworzenie:\\n1. Tytułu bajki (krótki, chwytliwy)\\n2. Treści bajki (400-600 słów)\\n3. Promptu do generowania ilustracji\\n\\nBAJKA MUSI UŻYWAĆ TAGÓW ELEVENLABS V3:\\n\\nEmocje: [EXCITED], [NERVOUS], [FRUSTRATED], [TIRED]\\nReakcje: [GASP], [SIGH], [LAUGHS], [GULPS]\\nGłośność: [WHISPERING], [SHOUTING], [QUIETLY], [LOUDLY]\\nTempo: [PAUSES], [STAMMERS], [RUSHED]\\n\\nPrzykład użycia:\\n\\\"[EXCITED] Hurra! - zawołał smok. [PAUSES] A potem... [WHISPERING] cicho podszedł do skarbu.\\\"\\n\\nUżywaj tych tagów naturalnie w narracji, aby dodać emocji i dramatyzmu.`;\n\nconst userPrompt = `Napisz bajkę dla dziecka w wieku ${childAge} lat.\\n\\nDane:\\n- Imię bohatera: ${heroName}\\n- Temat: ${theme}\\n- Nastrój/kierunek: ${direction}\\n- Dodatkowi bohaterowie: ${additionalHeroes.join(', ') || 'brak'}\\n- Miejsce akcji: ${location}\\n\\nWymagania:\\n- Długość: 100-200 słów\\n- Język: polski\\n- Używaj tagów ElevenLabs v3 dla emocji\\n- Pozytywne zakończenie\\n- Odpowiednie dla wieku ${childAge} lat`;\n\nreturn {\n  system_prompt: systemPrompt,\n  user_prompt: userPrompt,\n  hero_name: heroName,\n  theme: theme,\n  english_theme: englishTheme,\n  direction: direction,\n  location: location,\n  additional_heroes: additionalHeroes,\n  use_deapi_image: useDeapiImage\n};"
+      },
+      "id": "051a5b6b-6f1d-42fc-824f-9ccdba54cfd8",
+      "name": "Prepare Prompts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1312,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4.1-mini\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Jesteś ekspertem od pisania bajek dla dzieci.\\n\\nTwoim zadaniem jest stworzenie:\\n1. Tytułu bajki (krótki, chwytliwy)\\n2. Treści bajki (40-70 słów)\\n3. Promptu do generowania ilustracji\\n\\nBAJKA MUSI UŻYWAĆ TAGÓW ELEVENLABS V3:\\n\\nEmocje: [EXCITED], [NERVOUS], [FRUSTRATED], [TIRED]\\nReakcje: [GASP], [SIGH], [LAUGHS], [GULPS]\\nGłośność: [WHISPERING], [SHOUTING], [QUIETLY], [LOUDLY]\\nTempo: [PAUSES], [STAMMERS], [RUSHED]\\n\\nPrzykład użycia:\\n\\\"[EXCITED] Hurra! - zawołał smok. [PAUSES] A potem... [WHISPERING] cicho podszedł do skarbu.\\\"\\n\\nUżywaj tych tagów naturalnie w narracji, aby dodać emocji i dramatyzmu.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Napisz bajkę dla dziecka w wieku 6 lat.\\n\\nDane:\\n- Imię bohatera: {{ $json.hero_name }}\\n- Temat: {{ $json.theme }}\\n- Nastrój/kierunek: {{ $json.direction }}\\n- Dodatkowi bohaterowie: {{ $json.additional_heroes }}\\n- Miejsce akcji: {{ $json.location }}\\n\\nWymagania:\\n- Długość: 40-70 słów\\n- Język: polski\\n- Używaj tagów ElevenLabs v3 dla emocji\\n- Pozytywne zakończenie\\n- Odpowiednie dla wieku 6 lat\"\n    }\n  ],\n  \"functions\": [\n    {\n      \"name\": \"create_story\",\n      \"description\": \"Tworzy kompletną bajkę z tytułem, treścią i promptem do obrazu\",\n      \"parameters\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"description\": \"Krótki, chwytliwy tytuł bajki (max 60 znaków)\"\n          },\n          \"story\": {\n            \"type\": \"string\",\n            \"description\": \"Pełna treść bajki z tagami ElevenLabs v3 (100-200 słów)\"\n          },\n          \"txt2img_prompt\": {\n            \"type\": \"string\",\n            \"description\": \"Szczegółowy prompt po angielsku do generowania ilustracji (opisuje kluczową scenę z bajki)\"\n          },\n          \"img2vid_prompt\": {\n            \"type\": \"string\",\n            \"description\": \"Szczegółowy prompt po angielsku do generowania video z obrazka z bajki. Przekazuje co się dzieje na wideo (opisuje kluczową scenę z bajki)\"\n          }\n        },\n        \"required\": [\"title\", \"story\", \"txt2img_prompt\", \"img2vid_prompt\"]\n      }\n    }\n  ],\n  \"function_call\": {\"name\": \"create_story\"},\n  \"temperature\": 0.8\n}",
+        "options": {}
+      },
+      "id": "dc61d3e7-8311-4374-9071-225fe3a159f8",
+      "name": "OpenAI - Generate Story",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1104,
+        496
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "XUs1S8GBcVVHUg56",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const functionCall = $input.first().json.choices[0].message.function_call;\nconst args = JSON.parse(functionCall.arguments);\n\nreturn {\n  title: args.title,\n  story: args.story,\n  txt2img_prompt: args.txt2img_prompt,\n  img2vid_prompt: args.img2vid_prompt,\n  original_data: $('Prepare Prompts').first().json\n};"
+      },
+      "id": "b42cb790-5d14-45c6-b1e6-c7a9bfdd3855",
+      "name": "Extract Story Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-image-1-mini\",\n  \"prompt\": \"Children's book illustration, 3D Pixar style: {{ $json.txt2img_prompt }}. High quality, colorful, child-friendly, professional storybook art.\",\n  \"size\": \"1024x1024\",\n  \"quality\": \"low\"\n}",
+        "options": {}
+      },
+      "id": "03090e40-af5c-41fd-afd3-25a659ed1d04",
+      "name": "OpenAI - Generate Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -336,
+        -96
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "XUs1S8GBcVVHUg56",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/TX3LPaxmHKxFdv7VOQHJ",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": {{ JSON.stringify($json.story) }},\n  \"model_id\": \"eleven_v3\",\n  \"voice_settings\": {\n    \"stability\": 0.5,\n    \"similarity_boost\": 0.75,\n    \"style\": 0.5,\n    \"use_speaker_boost\": true\n  },\n  \"output_format\": \"mp3_44100_128\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "audio_data"
+            }
+          }
+        }
+      },
+      "id": "34554611-e639-4f93-828c-709a9bbbc02b",
+      "name": "ElevenLabs - Generate Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -640,
+        992
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "PLMNsilES8hntQC4",
+          "name": "ElevenKEY"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "id": "9796c00b-f6dd-4364-8b64-96ad75aa69a8",
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nlet title = '';\nlet story = '';\nlet imageBase64 = '';\nlet audioBase64 = '';\nlet videoUrl = '';\n\nconst storyData = $('Extract Story Data').first().json;\ntitle = storyData.title;\nstory = storyData.story;\n\nfor (const item of items) {\n  if (item.json && item.json.data) {\n    if (item.json.data[0] && item.json.data[0].b64_json) {\n      imageBase64 = item.json.data[0].b64_json;\n    }\n    if (item.json.data.result_url) {\n      videoUrl = item.json.data.result_url;\n    }\n  }\n\n  if (item.binary && item.binary.audio_data) {\n    audioBase64 = item.binary.audio_data.data;\n  }\n}\n\nconst imageDataUri = `data:image/png;base64,${imageBase64}`;\nconst audioDataUri = `data:audio/mpeg;base64,${audioBase64}`;\n\nreturn {\n  success: true,\n  title: title,\n  story: story,\n  image: $('Download DeAPI Image').first().json.data.result_url,\n  audio: audioDataUri,\n  video: videoUrl,\n  metadata: {\n    generated_at: new Date().toISOString(),\n    word_count: story.split(' ').length,\n    has_image: !!imageBase64,\n    has_audio: !!audioBase64,\n    has_video: !!videoUrl\n  }\n};"
+      },
+      "id": "b4629f77-3548-44d9-b4ff-bcbfd6947032",
+      "name": "Format Final Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2032,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -112,
+        1216
+      ],
+      "id": "181589f1-f568-4126-8460-c9f724178335",
+      "name": "Execute Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Check Image Provider": {
+      "main": [
+        [
+          {
+            "node": "Use DeAPI?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use DeAPI?": {
+      "main": [
+        []
+      ]
+    },
+    "DeAPI - Start Image Generation": {
+      "main": [
+        [
+          {
+            "node": "Extract Image Request ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image Request ID": {
+      "main": [
+        [
+          {
+            "node": "DeAPI - Check Image Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeAPI - Check Image Status": {
+      "main": [
+        [
+          {
+            "node": "Image Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Ready?": {
+      "main": [
+        [
+          {
+            "node": "Download DeAPI Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Before Image Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before Image Retry": {
+      "main": [
+        [
+          {
+            "node": "DeAPI - Check Image Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download DeAPI Image": {
+      "main": [
+        [
+          {
+            "node": "Format DeAPI Image Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format DeAPI Image Response": {
+      "main": [
+        [
+          {
+            "node": "Convert Image to Binary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Image to Binary1": {
+      "main": [
+        [
+          {
+            "node": "DeAPI - Start Video Generation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeAPI - Start Video Generation1": {
+      "main": [
+        [
+          {
+            "node": "Extract Request ID1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Request ID1": {
+      "main": [
+        [
+          {
+            "node": "DeAPI - Check Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeAPI - Check Status1": {
+      "main": [
+        [
+          {
+            "node": "Video Ready?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Ready?1": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Before Retry1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before Retry1": {
+      "main": [
+        [
+          {
+            "node": "DeAPI - Check Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Story Request": {
+      "main": [
+        [
+          {
+            "node": "Prepare Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompts": {
+      "main": [
+        [
+          {
+            "node": "OpenAI - Generate Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Generate Story": {
+      "main": [
+        [
+          {
+            "node": "Extract Story Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Story Data": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs - Generate Audio",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "DeAPI - Start Image Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI - Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Convert Image to Binary1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs - Generate Audio": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Format Final Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "ddd92e3e-b471-42a9-8f9c-2b247ff0e4c7",
+  "meta": {
+    "instanceId": "ccb5f7efdc0f8828294d9bfd7f4640bf7fafed875927a6f07f4a180be9c79c29"
+  },
+  "id": "BJlL8vdCeS2qwA7K",
+  "tags": []
+}
