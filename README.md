@@ -255,6 +255,42 @@ The following work was done **before** the hackathon started:
 
 ---
 
+### 🔄 Signal Flow
+
+```
+User speaks → Agent collects data → GENERATE_STORY tool called
+                                            │
+                                            ▼
+                                    n8n workflow starts
+                                            │
+                    ┌───────────────────────┼───────────────────────┐
+                    ▼                       ▼                       ▼
+               OpenAI GPT            deAPI.ai Image          deAPI.ai Video
+              (story text)          (illustration)           (animation)
+                    │                       │                       │
+                    └───────────────────────┼───────────────────────┘
+                                            │
+                                            ▼
+                                   ElevenLabs Voice V3
+                                      (narration)
+                                            │
+                                            ▼
+                              n8n returns all assets to frontend
+                                            │
+                                            ▼
+                              Frontend displays story player
+                              (image/video + audio narration)
+                                            │
+                                            ▼
+                              Audio ends → [STORY_FINISHED] signal
+                                            │
+                                            ▼
+                              Agent resumes conversation
+                              "Did you like the story?"
+```
+
+---
+
 ## 📄 License
 
 MIT License — feel free to use, modify, and distribute.
