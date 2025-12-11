@@ -263,8 +263,12 @@ export default function Storylandia() {
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <span className="text-6xl animate-float">🏰</span>
+          <div className="inline-flex items-center justify-center mb-4">
+            <img 
+              src="/logo.png" 
+              alt="Storylandia" 
+              className="h-24 md:h-32 w-auto animate-float drop-shadow-lg"
+            />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
             Storylandia
@@ -350,25 +354,35 @@ export default function Storylandia() {
               <h3 className="text-white/80 text-sm font-medium mb-3 flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
                 Twoje bajki ({storyHistory.length})
+                {isConnected && (
+                  <span className="text-white/50 text-xs ml-2">(zakończ rozmowę, aby odtworzyć)</span>
+                )}
               </h3>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {storyHistory.map((story, i) => (
                   <button
                     key={`${story.title}-${i}`}
-                    onClick={() => playFromHistory(story)}
-                    className="group flex-shrink-0 w-24 h-32 rounded-lg bg-white/10 overflow-hidden cursor-pointer hover:ring-2 ring-yellow-400 transition relative"
+                    onClick={() => !isConnected && playFromHistory(story)}
+                    disabled={isConnected}
+                    className={`group flex-shrink-0 w-24 h-32 rounded-lg bg-white/10 overflow-hidden transition relative ${
+                      isConnected 
+                        ? 'opacity-50 cursor-not-allowed grayscale' 
+                        : 'cursor-pointer hover:ring-2 ring-yellow-400'
+                    }`}
                   >
                     {story.image ? (
                       <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-3xl">📖</div>
                     )}
-                    {/* Play overlay on hover */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
-                      <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
-                        <Play className="w-5 h-5 text-purple-600 ml-0.5" />
+                    {/* Play overlay on hover - only when not connected */}
+                    {!isConnected && (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
+                        <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
+                          <Play className="w-5 h-5 text-purple-600 ml-0.5" />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </button>
                 ))}
               </div>

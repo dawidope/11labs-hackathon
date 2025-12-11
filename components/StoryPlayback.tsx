@@ -80,16 +80,7 @@ export default function StoryPlayback({
 
     audio.addEventListener('timeupdate', () => {
       setCurrentTime(audio.currentTime);
-      
-      // Synchronizuj video z audio podczas odtwarzania
-      if (videoRef.current && showVideoRef.current && !isPausedRef.current) {
-        const drift = Math.abs(videoRef.current.currentTime - audio.currentTime);
-        // Synchronizuj tylko jeśli drift > 0.3s
-        if (drift > 0.3) {
-          console.log('🔄 Synchronizuję video z audio, drift:', drift.toFixed(2));
-          videoRef.current.currentTime = audio.currentTime;
-        }
-      }
+      // Video leci niezależnie z loop - bez synchronizacji
     });
 
     audio.addEventListener('ended', () => {
@@ -113,9 +104,8 @@ export default function StoryPlayback({
   useEffect(() => {
     if (!videoRef.current || !hasVideo) return;
 
-    if (showVideo && !isPaused && audioRef.current) {
-      // Synchronizuj czas i startuj video
-      videoRef.current.currentTime = audioRef.current.currentTime;
+    if (showVideo && !isPaused) {
+      // Po prostu startuj video - leci zapętlone niezależnie od audio
       videoRef.current.play().catch(err => {
         console.log('⚠️ Video autoplay blocked:', err);
       });
@@ -147,9 +137,7 @@ export default function StoryPlayback({
     if (!audioRef.current) return;
     const newTime = Math.max(0, Math.min(duration, audioRef.current.currentTime + seconds));
     audioRef.current.currentTime = newTime;
-    if (showVideo && videoRef.current) {
-      videoRef.current.currentTime = newTime;
-    }
+    // Video leci zapętlone - nie zmieniamy jego czasu
   };
 
   const formatTime = (s: number) => {
@@ -237,9 +225,8 @@ export default function StoryPlayback({
                 onLoadedData={() => {
                   console.log('📹 Video załadowane');
                   setIsVideoLoaded(true);
-                  // Startuj video jeśli audio gra
-                  if (audioRef.current && !audioRef.current.paused && videoRef.current) {
-                    videoRef.current.currentTime = audioRef.current.currentTime;
+                  // Startuj video od razu - leci zapętlone
+                  if (videoRef.current && showVideoRef.current && !isPausedRef.current) {
                     videoRef.current.play().catch(console.error);
                   }
                 }}
@@ -272,9 +259,7 @@ export default function StoryPlayback({
               const percent = (e.clientX - rect.left) / rect.width;
               const newTime = percent * duration;
               audioRef.current.currentTime = newTime;
-              if (showVideo && videoRef.current) {
-                videoRef.current.currentTime = newTime;
-              }
+              // Video leci zapętlone - nie zmieniamy jego czasu
             }}
           >
             <div
