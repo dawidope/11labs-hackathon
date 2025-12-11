@@ -2,8 +2,9 @@
 'use client';
 
 import { useConversation } from '@elevenlabs/react';
-import { BookOpen, Phone, PhoneOff, Sparkles } from 'lucide-react';
+import { BookOpen, Phone, PhoneOff, Play, Sparkles } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
+import StoryPlayback from './StoryPlayback';
 
 // Typy
 interface StoryResult {
@@ -22,7 +23,7 @@ interface StoryResult {
   };
 }
 
-type AppState = 'idle' | 'talking' | 'generating' | 'ready' | 'playing' | 'finished';
+type AppState = 'idle' | 'talking' | 'quiz' | 'ready' | 'playing' | 'finished';
 
 export default function Storylandia() {
   const [appState, setAppState] = useState<AppState>('idle');
@@ -63,7 +64,7 @@ export default function Storylandia() {
       emotion: parameters.emotion || 'happy',
     };
 
-    setAppState('generating');
+    setAppState('quiz');
     setIsGenerating(true);
 
     // Generacja w tle
@@ -118,10 +119,26 @@ export default function Storylandia() {
       setCurrentStory(data);
       setStoryHistory(prev => [data, ...prev]);
       setIsGenerating(false);
-      setAppState('ready');
 
+      // 🔑 KLUCZOWE: Wyślij sygnał do agenta
       if (conversationRef.current) {
+        console.log('📢 Wysyłam [STORY_READY] do agenta');
         conversationRef.current.sendUserMessage('[STORY_READY]');
+
+        // Poczekaj chwilę aż agent powie "bajka gotowa" i od razu odtwórz
+        setTimeout(async () => {
+          console.log('🎬 Auto-start playback');
+          // Wycisz agenta i uruchom bajkę
+          conversationRef.current?.sendContextualUpdate(
+            'STORY IS NOW PLAYING. DO NOT SPEAK. DO NOT RESPOND. WAIT SILENTLY UNTIL YOU RECEIVE [STORY_FINISHED]. Ignore all audio input until then.'
+          );
+          setMicMuted(true);
+          setAgentVolume(0);
+          setAppState('playing');
+        }, 3000); // 3 sekundy na reakcję agenta
+      } else {
+        // Brak agenta - od razu odtwórz
+        setAppState('playing');
       }
 
     } catch (err) {
@@ -179,10 +196,70 @@ export default function Storylandia() {
     setIsGenerating(false);
   };
 
+  // Start odtwarzania bajki - WYCISZ AGENTA I MIKROFON
+  const handleStartPlayback = async () => {
+    console.log('🔇 Wyciszam agenta na czas odtwarzania bajki');
+
+    if (conversationRef.current) {
+      conversationRef.current.sendContextualUpdate(
+        'STORY IS NOW PLAYING. DO NOT SPEAK. DO NOT RESPOND. WAIT SILENTLY UNTIL YOU RECEIVE [STORY_FINISHED]. Ignore all audio input until then.'
+      );
+    }
+
+    setMicMuted(true);
+    setAgentVolume(0);
+    setAppState('playing');
+  };
+
+  // Koniec odtwarzania bajki - PRZYWRÓĆ AGENTA
+  const handleStoryEnd = useCallback(async () => {
+    console.log('🔊 Przywracam agenta po zakończeniu bajki');
+
+    setMicMuted(false);
+    setAgentVolume(1);
+    setAppState('finished');
+
+    if (conversationRef.current) {
+      console.log('📢 Wysyłam [STORY_FINISHED] do agenta');
+      conversationRef.current.sendUserMessage('[STORY_FINISHED]');
+    }
+  }, []);
+
+  // Reset do nowej bajki
+  const handleNewStory = useCallback(() => {
+    setCurrentStory(null);
+    setAppState('talking');
+  }, []);
+
+  // Odtwórz bajkę z historii
+  const playFromHistory = async (story: StoryResult) => {
+    setCurrentStory(story);
+
+    if (conversationRef.current) {
+      conversationRef.current.sendContextualUpdate(
+        'STORY IS NOW PLAYING. DO NOT SPEAK. DO NOT RESPOND. WAIT SILENTLY UNTIL YOU RECEIVE [STORY_FINISHED].'
+      );
+    }
+    setMicMuted(true);
+    setAgentVolume(0);
+    setAppState('playing');
+  };
+
   const isConnected = conversation.status === 'connected';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
+      {/* Story Playback Overlay */}
+      {(appState === 'playing' || appState === 'ready') && currentStory && (
+        <StoryPlayback
+          story={currentStory}
+          isPlaying={appState === 'playing'}
+          onStart={handleStartPlayback}
+          onEnd={handleStoryEnd}
+          onClose={handleNewStory}
+        />
+      )}
+
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -276,16 +353,23 @@ export default function Storylandia() {
               </h3>
               <div className="flex gap-2 overflow-x-auto pb-2">
                 {storyHistory.map((story, i) => (
-                  <div
-                    key={i}
-                    className="flex-shrink-0 w-24 h-32 rounded-lg bg-white/10 overflow-hidden cursor-pointer hover:ring-2 ring-yellow-400 transition"
+                  <button
+                    key={`${story.title}-${i}`}
+                    onClick={() => playFromHistory(story)}
+                    className="group flex-shrink-0 w-24 h-32 rounded-lg bg-white/10 overflow-hidden cursor-pointer hover:ring-2 ring-yellow-400 transition relative"
                   >
                     {story.image ? (
                       <img src={story.image} alt={story.title} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-3xl">📖</div>
                     )}
-                  </div>
+                    {/* Play overlay on hover */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40">
+                      <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
+                        <Play className="w-5 h-5 text-purple-600 ml-0.5" />
+                      </div>
+                    </div>
+                  </button>
                 ))}
               </div>
             </div>
