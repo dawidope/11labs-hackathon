@@ -1,1 +1,269 @@
-# 11labs-hackathon
+# 🏰 Storylandia LIVE
+
+> **Interactive AI Story Companion for Children**  
+> Built for the [ElevenLabs Worldwide Hackathon](https://elevenlabs.io/hackathon)
+
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-violet?style=for-the-badge)](https://11labs-hackathon.vercel.app/)
+[![Built with ElevenLabs](https://img.shields.io/badge/Built_with-ElevenLabs-blue?style=for-the-badge)](https://elevenlabs.io)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+
+---
+
+## 🌟 What is Storylandia LIVE?
+
+**Storylandia LIVE** is an interactive voice-powered AI agent designed for children that **co-creates personalized stories in real-time**. 
+
+Children talk to the agent, answer playful questions, choose their heroes, settings, and story mood. The system then generates:
+
+- 📝 **Custom story text** (OpenAI)
+- 🎨 **Unique illustration** (deAPI.ai (Z-Image Turbo))
+- 🎬 **Short animation** from the illustration (deAPI.ai (LTX Video))
+- 🔊 **High-quality narration** (ElevenLabs Voice V3)
+
+After generation, the story appears as a beautiful multimedia experience. Once finished, the agent continues the conversation, encouraging more adventures!
+
+---
+
+## ✨ Key Features
+
+| Feature | Description |
+|---------|-------------|
+| 🎤 **Voice Conversation** | Real-time dialogue with ElevenLabs Conversational Agent |
+| 👶 **Child-Friendly** | Age-appropriate content, warm and engaging personality |
+| 🎭 **Story Co-Creation** | Child chooses hero, location, mood — becomes a co-author |
+| ⚡ **Background Generation** | Story generates while agent keeps child entertained with quizzes |
+| 🖼️ **Multimodal Output** | Illustration + Animation + Audio narration |
+| 🔄 **Seamless Loop** | Conversation → Story → Conversation → New Story |
+
+---
+
+## 🎬 How It Works
+
+### 1️⃣ Start Adventure
+Child clicks "Start Adventure" and the AI agent greets them warmly:
+> *"Hi there! I'm your magical story companion. Today we can create an amazing tale together!"*
+
+### 2️⃣ Gathering Context
+Agent asks 3-4 fun questions:
+- "How old are you?"
+- "Who should be the hero?"
+- "Where should the adventure happen?"
+- "Should it be funny, magical, or sleepy?"
+
+### 3️⃣ Story Generation Begins
+Agent calls the `GENERATE_STORY` tool and says:
+> *"Great! I'm preparing your story! And before I begin, I have a quiz for you!"*
+
+### 4️⃣ Quiz Time
+While the story generates in the background, agent keeps engagement:
+- "What color should the dragon be?"
+- "Does the puppy have a name?"
+- "Do you like space adventures?"
+
+### 5️⃣ Story Presentation
+When ready, the UI displays:
+- 🎨 Custom illustration
+- 🎬 3-second animation
+- 🔊 ElevenLabs V3 narrated audio
+
+Agent announces:
+> *"Oh! The story is ready! Listen carefully…"*
+
+### 6️⃣ Continue the Adventure
+After listening, the conversation resumes:
+> *"Did you like the story? Want to create another one?"*
+
+---
+
+## 🛠️ Tech Stack
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      FRONTEND                                │
+│   Next.js 14 • React 18 • TypeScript • Tailwind CSS         │
+│   @elevenlabs/react • Glassmorphism UI                      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│               ELEVENLABS CONVERSATIONAL AGENT                │
+│   • Voice-to-Voice dialogue                                  │
+│   • Tool calling (GENERATE_STORY)                           │
+│   • Real-time conversation management                        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    BACKEND (n8n Flow)                        │
+│                                                              │
+│   ┌──────────┐   ┌──────────┐   ┌──────────┐               │
+│   │  OpenAI  │   │  DEAPI   │   │ElevenLabs│               │
+│   │  Story   │──▶│  Image   │──▶│  Voice   │               │
+│   │Generator │   │ + Video  │   │   V3     │               │
+│   └──────────┘   └──────────┘   └──────────┘               │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- ElevenLabs API Key
+- n8n instance (for backend flow)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/storylandia-live.git
+cd storylandia-live
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your API keys
+
+# Run development server
+npm run dev
+```
+
+### Environment Variables
+
+```env
+NEXT_PUBLIC_ELEVENLABS_AGENT_ID=your_agent_id
+N8N_WEBHOOK_URL=your_n8n_webhook_url
+```
+
+---
+
+## 📱 User Interface
+
+The UI features a modern **glassmorphism design** with:
+
+- ✨ Animated gradient background with floating orbs
+- 🪄 "Start Adventure" / "End Adventure" buttons
+- 🎵 Audio visualizer during conversation
+- 📚 Story history gallery
+- 🎬 Fullscreen story player with image/video toggle
+
+---
+
+## 🎯 Why This Project?
+
+| Aspect | Value |
+|--------|-------|
+| **Innovation** | Storytelling as real-time co-creation with AI |
+| **Technical Complexity** | Multi-agent orchestration + voice + multimodal generation |
+| **Impact** | Supports imagination, education, and emotional development |
+| **Theme Alignment** | Perfect fit for ElevenLabs Conversational Agents |
+| **Demo Clarity** | Easy to demonstrate — "wow" effect in under 2 minutes |
+
+---
+
+## 🎥 Demo
+
+🔗 **Live Demo:** [https://11labs-hackathon.vercel.app/](https://11labs-hackathon.vercel.app/)
+
+---
+
+## 📋 Hackathon Submission
+
+### 🏆 ElevenLabs Worldwide Hackathon
+
+> *"Build the future of conversational agents with ElevenLabs by turning browsers, voices, clouds and tools into smart agents that act on real user intent. Harness LLMs, tool-use APIs, and multimodal perception to create agents that navigate, speak, and orchestrate services on the fly."*
+
+**Built in 3 hours** ⏱️
+
+---
+
+### 📝 Project Description
+
+**Storylandia LIVE** is an interactive, voice-powered AI agent designed for children that co-creates personalized stories in real-time. 
+
+The child engages in a natural voice conversation with the agent, answering playful questions to choose their hero, adventure location, and story mood. Behind the scenes, the system orchestrates multiple AI services to generate a complete multimedia story: custom text (OpenAI), unique illustration (deapi.ai - Z-Image Turbo), short animation (deapi.ai - LTX Video), and high-quality narration (ElevenLabs Voice V3).
+
+The agent maintains engagement during generation by asking quiz questions, then seamlessly presents the finished story as an immersive multimedia experience. After the story ends, the conversation continues — opening the door to new stories, games, and creative adventures.
+
+This project demonstrates the full potential of ElevenLabs Conversational Agents combined with multimodal AI generation and real-time orchestration, creating a truly magical experience that bridges human imagination and seamless AI automation.
+
+---
+
+### 🔧 Products & Tools Used
+
+**Core Technologies:**
+- **ElevenLabs Conversational Agent** — Voice dialogue, tool calling, conversation management
+- **ElevenLabs Voice V3** — High-quality story narration with emotional expression
+- **OpenAI GPT** — Story text generation
+- **deapi.ai** — Image generation and image-to-video animation
+- **n8n** — Backend workflow orchestration
+
+**Frontend Stack:**
+- Next.js 14 (App Router)
+- React 18
+- TypeScript
+- Tailwind CSS
+- @elevenlabs/react SDK
+
+**Development Tools:**
+- GitHub Copilot — AI-assisted coding
+- Vercel — Deployment
+
+---
+
+### 👥 Team Contributions
+
+#### Dawid Wenderski
+**Role:** Developer / Technical Lead
+
+- 💼 CTO at Storylandia, Developer at GamerHash AI & deAPI.ai
+- 🛠️ Tech stack expertise: C#, Flutter, Python
+- 👨‍💻 **Contributions:**
+  - Full technical implementation
+  - Frontend development (Next.js, React, TypeScript)
+  - ElevenLabs Conversational Agent integration
+  - n8n workflow design for multimodal generation pipeline
+  - API integrations: OpenAI, ElevenLabs, deAPI.ai
+- 🤖 Extensive use of GitHub Copilot for rapid development
+
+#### Tomasz Sabiniewicz
+**Role:** Product Owner / PM
+
+- 💼 CEO at Storylandia
+- 📋 **Contributions:**
+  - Project planning and vision
+  - Concept development and ideation
+  - User experience design
+  - Documentation and descriptions
+  - Video preparation and pitch
+  - Submission materials
+
+---
+
+## 📄 License
+
+MIT License — feel free to use, modify, and distribute.
+
+---
+
+## 🙏 Acknowledgments
+
+- [ElevenLabs](https://elevenlabs.io) for the amazing Conversational Agent platform
+- [DEAPI](https://deapi.com) for image and video generation
+- [OpenAI](https://openai.com) for story generation
+- [n8n](https://n8n.io) for workflow automation
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the ElevenLabs Worldwide Hackathon**
+
+🏰 *Where every child becomes a storyteller* 🏰
+
+</div>
