@@ -36,9 +36,12 @@ body {
 
 /* Animation utilities */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -58,9 +61,12 @@ body {
 
 /* Audio visualizer bars */
 @keyframes audioBar {
-  0%, 100% {
+
+  0%,
+  100% {
     height: 20%;
   }
+
   50% {
     height: 100%;
   }
@@ -70,11 +76,25 @@ body {
   animation: audioBar 0.5s ease-in-out infinite;
 }
 
-.audio-bar:nth-child(1) { animation-delay: 0ms; }
-.audio-bar:nth-child(2) { animation-delay: 100ms; }
-.audio-bar:nth-child(3) { animation-delay: 200ms; }
-.audio-bar:nth-child(4) { animation-delay: 300ms; }
-.audio-bar:nth-child(5) { animation-delay: 400ms; }
+.audio-bar:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.audio-bar:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.audio-bar:nth-child(3) {
+  animation-delay: 200ms;
+}
+
+.audio-bar:nth-child(4) {
+  animation-delay: 300ms;
+}
+
+.audio-bar:nth-child(5) {
+  animation-delay: 400ms;
+}
 
 /* Gradient text */
 .gradient-text {
@@ -98,12 +118,10 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   transition: left 0.5s ease;
 }
 
