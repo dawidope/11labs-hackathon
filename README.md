@@ -6,6 +6,7 @@
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-violet?style=for-the-badge)](https://11labs-hackathon.vercel.app/)
 [![Built with ElevenLabs](https://img.shields.io/badge/Built_with-ElevenLabs-blue?style=for-the-badge)](https://elevenlabs.io)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+https://www.youtube.com/watch?v=rH1NHpelgL4
 
 ---
 
@@ -97,7 +98,7 @@ After listening, the conversation resumes:
 │                    BACKEND (n8n Flow)                        │
 │                                                              │
 │   ┌──────────┐   ┌──────────┐   ┌──────────┐               │
-│   │  OpenAI  │   │  DEAPI   │   │ElevenLabs│               │
+│   │  OpenAI  │   │ deAPI.ai │   │ElevenLabs│               │
 │   │  Story   │──▶│  Image   │──▶│  Voice   │               │
 │   │Generator │   │ + Video  │   │   V3     │               │
 │   └──────────┘   └──────────┘   └──────────┘               │
@@ -184,39 +185,87 @@ The UI features a modern **glassmorphism design** with:
 
 ### 📝 Project Description
 
+#### The Problem
+Children today are surrounded by passive entertainment — videos, games, and apps that require no imagination. Parents struggle to find interactive, creative experiences that engage their children meaningfully while developing storytelling skills and emotional intelligence.
+
+#### The Solution
 **Storylandia LIVE** is an interactive, voice-powered AI agent designed for children that co-creates personalized stories in real-time. 
 
 The child engages in a natural voice conversation with the agent, answering playful questions to choose their hero, adventure location, and story mood. Behind the scenes, the system orchestrates multiple AI services to generate a complete multimedia story: custom text (OpenAI), unique illustration (deapi.ai - Z-Image Turbo), short animation (deapi.ai - LTX Video), and high-quality narration (ElevenLabs Voice V3).
 
-The agent maintains engagement during generation by asking quiz questions, then seamlessly presents the finished story as an immersive multimedia experience. After the story ends, the conversation continues — opening the door to new stories, games, and creative adventures.
+#### Core Flow (End-to-End)
+1. **Start** — Child clicks "Start Adventure" button, microphone permission granted
+2. **Conversation** — ElevenLabs Conversational Agent greets child, asks 3-4 questions about hero, location, mood
+3. **Tool Call** — Agent triggers `GENERATE_STORY` client tool with collected parameters
+4. **Quiz Mode** — While n8n workflow generates content (~60s), agent keeps child engaged with quiz questions
+5. **Generation** — n8n orchestrates: OpenAI (text) → deAPI.ai (image) → deAPI.ai (video) → ElevenLabs V3 (audio)
+6. **Signal** — Frontend receives `[STORY_READY]`, displays fullscreen player with image/video toggle + audio
+7. **Playback** — Child listens to narrated story, agent is muted during playback
+8. **Resume** — Audio ends → `[STORY_FINISHED]` signal → Agent resumes: "Did you like it? Want another story?"
+9. **Loop** — Child can create unlimited stories or replay from history gallery
 
-This project demonstrates the full potential of ElevenLabs Conversational Agents combined with multimodal AI generation and real-time orchestration, creating a truly magical experience that bridges human imagination and seamless AI automation.
+#### Key Demo Moments
+- Voice-to-voice natural conversation with a child
+- Real-time tool calling triggering multimodal generation
+- Seamless quiz engagement during background processing
+- Beautiful story presentation with AI-generated visuals and narration
+- Continuous conversation loop after story ends
 
 ---
 
-### 🔧 Products & Tools Used
+#### Judging Criteria
 
-**Core Technologies:**
-- **ElevenLabs Conversational Agent** — Voice dialogue, tool calling, conversation management
-- **ElevenLabs Voice V3** — High-quality story narration with emotional expression
-- **OpenAI GPT** — Story text generation
-- **deapi.ai** — Image generation and image-to-video animation
-- **n8n** — Backend workflow orchestration
+| Criterion | How We Address It |
+|-----------|-------------------|
+| **Working Prototype** | Fully functional live demo at [11labs-hackathon.vercel.app](https://11labs-hackathon.vercel.app). End-to-end flow works: voice conversation → story generation → playback → conversation resume |
+| **Technical Complexity & Integration** | Multi-service orchestration via n8n: OpenAI + deAPI.ai (image & video) + ElevenLabs V3. Client-side tool calling from Conversational Agent. Real-time state management with signals (`[STORY_READY]`, `[STORY_FINISHED]`). Audio/video sync with agent muting |
+| **Innovation & Creativity** | Story co-creation where child is the author, not passive consumer. Quiz-based engagement during generation wait time. Multimodal output (text + image + video + voice) from single conversation |
+| **Real-World Impact** | Supports children's imagination, creativity, and emotional development. Educational potential for language learning and storytelling skills. Accessible via any browser with microphone |
+| **Theme Alignment** | Perfect demonstration of ElevenLabs Conversational Agents with tool-use APIs, voice integration, and real-time orchestration. Agent acts on user intent to create personalized content |
 
-**Frontend Stack:**
+---
+
+#### Technologies & Integrations
+
+**Voice & Agent:**
+- ElevenLabs Conversational Agent (voice dialogue, tool calling)
+- ElevenLabs Voice V3 (story narration)
+- @elevenlabs/react SDK
+
+**AI Services:**
+- OpenAI GPT-4 (story text generation)
+- deAPI.ai Z-Image Turbo (illustration)
+- deAPI.ai LTX Video (image-to-video animation)
+
+**Backend & Orchestration:**
+- n8n (workflow automation, webhook handling)
+- Next.js API Routes (frontend-to-n8n bridge)
+
+**Frontend:**
 - Next.js 14 (App Router)
 - React 18
 - TypeScript
 - Tailwind CSS
-- @elevenlabs/react SDK
 
-**Development Tools:**
-- GitHub Copilot — AI-assisted coding
-- Vercel — Deployment
+**Deployment:**
+- Vercel (frontend hosting)
+- n8n Cloud (workflow hosting)
 
 ---
 
-### 👥 Team Contributions
+#### Setup & Demo Steps
+
+1. Visit [https://11labs-hackathon.vercel.app/](https://11labs-hackathon.vercel.app/)
+2. Click **"Start Adventure"**
+3. Allow microphone access when prompted
+4. Talk to the agent — answer questions about your story preferences
+5. Wait for story generation (agent will ask quiz questions)
+6. Watch and listen to your personalized story
+7. Continue conversation or create another story
+
+---
+
+###  Team Contributions
 
 #### Dawid Wenderski
 **Role:** Developer / Technical Lead
@@ -300,7 +349,7 @@ MIT License — feel free to use, modify, and distribute.
 ## 🙏 Acknowledgments
 
 - [ElevenLabs](https://elevenlabs.io) for the amazing Conversational Agent platform
-- [DEAPI](https://deapi.com) for image and video generation
+- [deAPI.ai](https://deapi.ai) for image and video generation
 - [OpenAI](https://openai.com) for story generation
 - [n8n](https://n8n.io) for workflow automation
 
