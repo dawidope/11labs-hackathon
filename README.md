@@ -5,7 +5,7 @@
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-violet?style=for-the-badge)](https://11labs-hackathon.vercel.app/)
 [![Built with ElevenLabs](https://img.shields.io/badge/Built_with-ElevenLabs-blue?style=for-the-badge)](https://elevenlabs.io)
-[![Powered by deAPI.ai](https://img.shields.io/badge/Powered_by-deAPI.ai-orange?style=for-the-badge](https://deapi.ai)
+[![Powered by deAPI.ai](https://img.shields.io/badge/Powered_by-deAPI.ai-orange?style=for-the-badge)](https://deapi.ai)
 [![By Storylandia](https://img.shields.io/badge/By-Storylandia-purple?style=for-the-badge)](https://storylandia.pl)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![YouTube Demo](https://img.shields.io/badge/📹_Demo_Video-Watch_on_YouTube-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=rH1NHpelgL4)
