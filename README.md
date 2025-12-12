@@ -6,7 +6,7 @@
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-violet?style=for-the-badge)](https://11labs-hackathon.vercel.app/)
 [![Built with ElevenLabs](https://img.shields.io/badge/Built_with-ElevenLabs-blue?style=for-the-badge)](https://elevenlabs.io)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
-https://www.youtube.com/watch?v=rH1NHpelgL4
+[![YouTube Demo](https://img.shields.io/badge/📹_Demo_Video-Watch_on_YouTube-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=rH1NHpelgL4)
 
 ---
 
@@ -22,6 +22,16 @@ Children talk to the agent, answer playful questions, choose their heroes, setti
 - 🔊 **High-quality narration** (ElevenLabs Voice V3)
 
 After generation, the story appears as a beautiful multimedia experience. Once finished, the agent continues the conversation, encouraging more adventures!
+
+---
+
+## 🎥 Demo
+
+🔗 **Live Demo:** [https://11labs-hackathon.vercel.app/](https://11labs-hackathon.vercel.app/)
+
+### 📹 Demo Video
+
+https://github.com/user-attachments/assets/f7a801f5-c121-40a1-88da-c6739d38cd58
 
 ---
 
@@ -164,12 +174,6 @@ The UI features a modern **glassmorphism design** with:
 | **Impact** | Supports imagination, education, and emotional development |
 | **Theme Alignment** | Perfect fit for ElevenLabs Conversational Agents |
 | **Demo Clarity** | Easy to demonstrate — "wow" effect in under 2 minutes |
-
----
-
-## 🎥 Demo
-
-🔗 **Live Demo:** [https://11labs-hackathon.vercel.app/](https://11labs-hackathon.vercel.app/)
 
 ---
 
