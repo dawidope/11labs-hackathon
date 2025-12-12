@@ -5,6 +5,7 @@
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Site-violet?style=for-the-badge)](https://11labs-hackathon.vercel.app/)
 [![Built with ElevenLabs](https://img.shields.io/badge/Built_with-ElevenLabs-blue?style=for-the-badge)](https://elevenlabs.io)
+[![Powered by deAPI.ai](https://img.shields.io/badge/Powered_by-deAPI.ai-orange?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkw0IDZWMTJDNCAxNi40MTgzIDcuNTgxNzIgMjAgMTIgMjBDMTYuNDE4MyAyMCAyMCAxNi40MTgzIDIwIDEyVjZMMTIgMloiIGZpbGw9IndoaXRlIi8+PC9zdmc+)](https://deapi.ai)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![YouTube Demo](https://img.shields.io/badge/📹_Demo_Video-Watch_on_YouTube-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=rH1NHpelgL4)
 
