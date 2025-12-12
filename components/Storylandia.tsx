@@ -433,6 +433,51 @@ export default function Storylandia() {
             Choose your hero, location and type of adventure 🎭
           </p>
         </div>
+
+        {/* Footer */}
+        <div className="mt-12 text-center space-y-4">
+          {/* Powered by - single line */}
+          <div className="flex items-center justify-center gap-2 text-xs text-white/40 flex-wrap">
+            <span>Powered by</span>
+            <a
+              href="https://deapi.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-white/60 hover:text-white/90 transition-colors"
+            >
+              <img src="/depin_logo_sign.svg" alt="" className="h-4" />
+              <span className="underline decoration-white/20 hover:decoration-white/60">deAPI.ai</span>
+            </a>
+            <span>•</span>
+            <a
+              href="https://elevenlabs.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-white/60 hover:text-white/90 transition-colors"
+            >
+              <img src="/elevenlabs-logo-white.png" alt="" className="h-3" />
+              <span className="underline decoration-white/20 hover:decoration-white/60"></span>
+            </a>
+            <span>|</span>
+            <span>by</span>
+            <a
+              href="https://storylandia.pl"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-white/60 hover:text-white/90 transition-colors"
+            >
+              <img src="/storylandia.svg" alt="" className="h-4" />
+              <span className="underline decoration-white/20 hover:decoration-white/60">Storylandia Team</span>
+            </a>
+          </div>
+
+          {/* Created on */}
+          <div>
+            <p className="text-white/30 text-xs">
+              Created on <span className="text-white/40">ElevenLabs Worldwide Hackathon</span>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
