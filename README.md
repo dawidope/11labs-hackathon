@@ -278,7 +278,6 @@ The child engages in a natural voice conversation with the agent, answering play
 **Role:** Developer / Technical Lead
 
 - 💼 CTO at Storylandia, Developer at GamerHash AI & deAPI.ai
-- 🛠️ Tech stack expertise: C#, Flutter, Python
 - 👨‍💻 **Contributions:**
   - Full technical implementation
   - Frontend development (Next.js, React, TypeScript)
